@@ -1,0 +1,36 @@
+---
+varnish_version: "3.0.7"
+
+varnish_listening_port: "80"
+
+varnish_source_path: "/opt/varnish-src"
+
+varnish_systemd_path: "/etc/systemd/system/varnish.service.d"
+
+varnish_apt_keys: "https://repo.varnish-cache.org/GPG-key.txt"
+
+varnish_apt_repositories:
+  - "deb https://repo.varnish-cache.org/debian/ jessie varnish-3.0"
+  - "deb-src https://repo.varnish-cache.org/debian/ jessie varnish-3.0"
+
+varnish_vmods_paths:
+  old: "/usr/local/lib/varnish/vmods"
+  new: "/usr/lib/varnish/vmods"
+
+varnish_vmods:
+  - name: "libvmod_ipcast"
+    url: "https://github.com/lkarsten/libvmod-ipcast.git"
+    version: "master"
+  - name: "libvmod_header"
+    url: "https://github.com/varnish/libvmod-header.git"
+    version: "3.0"
+
+varnish_apt_packages:
+  - curl
+  - dpkg-dev
+  - git
+  - make
+  - automake
+  - libncurses5-dev
+  - libtool
+  - pkg-config

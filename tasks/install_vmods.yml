@@ -1,0 +1,35 @@
+---
+- name: Download vmods from git repositories
+  git:
+    accept_hostkey: True
+    repo: "{{ item.url }}"
+    dest: "{{ varnish_source_path }}/{{ item.name }}"
+    version: "{{ item.version }}"
+  with_items: "{{ varnish_vmods }}"
+
+- name: Install vmods
+  shell: |
+    /bin/bash autogen.sh
+    ./configure VARNISHSRC="{{ varnish_source_path }}/varnish-{{ varnish_version }}"
+    make install
+  args:
+    chdir: "{{ varnish_source_path }}/{{ item.name }}"
+  with_items:
+    - "{{ varnish_vmods }}"
+
+- name: Make symbolic link
+  file:
+    src: "{{ varnish_vmods_paths.old }}/{{ item.name }}.so"
+    dest: "{{ varnish_vmods_paths.new }}/{{ item.name }}.so"
+    state: link
+  with_items:
+    - "{{ varnish_vmods }}"
+
+- name: Change default varnish file
+  template:
+    src: templates/customexec.conf.j2
+    dest: "{{ varnish_systemd_path }}/customexec.conf"
+  notify:
+    - reload systemd
+    - restart varnish
+

@@ -1,0 +1,61 @@
+---
+- name: Add varnish apt key
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  with_items: "{{ varnish_apt_keys }}"
+
+- name: Add varnish repositories
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+    filename: "varnish-cache"
+    update_cache: yes
+  with_items: "{{ varnish_apt_repositories }}"
+
+- name: Install prerequisites
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: "{{ varnish_apt_packages }}"
+
+- name: Create varnish source dir
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "{{ varnish_source_path }}"
+    - "{{ varnish_systemd_path }}"
+
+- name: Add apt preferences
+  template:
+    src: templates/varnish.j2
+    dest: /etc/apt/preferences.d/varnish
+
+- name: Install prerequisites
+  apt:
+    name: varnish
+    state: present
+    update_cache: yes
+
+- name: Download varnish source
+  shell: |
+    apt-get source varnish
+    apt-get build-dep -y varnish
+  args:
+    chdir: "{{ varnish_source_path }}"
+
+- name: Preconfigure varnish source
+  shell: |
+    /bin/bash autogen.sh
+    ./configure
+  args:
+    chdir: "{{ varnish_source_path }}/varnish-{{ varnish_version }}"
+
+- name: Install varnish sources
+  make:
+    target: install
+    chdir: "{{ varnish_source_path }}/varnish-{{ varnish_version }}"
+

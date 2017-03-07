@@ -1,0 +1,12 @@
+---
+- name: Include varnish installation tasks
+  include: install_varnish.yml
+
+- name: Include varnish vmods installation tasks
+  include: install_vmods.yml
+
+- name: Ensure varnish is started and enabled to start at boot
+  service:
+    name: varnish
+    state: started
+    enabled: yes
