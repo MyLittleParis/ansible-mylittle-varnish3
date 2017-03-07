@@ -1,31 +1,87 @@
-Role Name
+Ansible Role: Varnish3.0
 =========
 
-A brief description of the role goes here.
+Installs Varnish on Debian/Ubuntu Linux servers.
+
+This role installs and configures the 3.0 version of Varnish from the Varnish repositories via apt (on Debian-based systems) . You will likely need to do extra setup work after this role has installed Varnish, like adding your own [config].vcl file inside /etc/varnish/, describing the location and options to use for your particular caching rules.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Available variables are listed below, along with default values (see defaults/main.yml):
+
+    varnish_version: "3.0.7"
+
+Set the varnish version to install.
+
+
+    varnish_listening_port: "80"
+
+Set the listening varnish port.
+
+    varnish_source_path: "/opt/varnish-src"
+
+Set the varnish source path. Will be used to download varnish source for the compilation of vmods.
+
+    varnish_systemd_path: "/etc/systemd/system/varnish.service.d"
+
+Path to create for handle varnish startup options with systemd managed linux.
+
+    varnish_apt_keys: "https://repo.varnish-cache.org/GPG-key.txt"
+
+Official varnish GPG keys used for trust varnish repositories.
+
+    varnish_apt_repositories:
+      - "deb https://repo.varnish-cache.org/debian/ jessie varnish-3.0"
+      - "deb-src https://repo.varnish-cache.org/debian/ jessie varnish-3.0"
+
+Add here all repositories you need to download your varnish version.
+
+    varnish_vmods_paths:
+      old: "/usr/local/lib/varnish/vmods"
+      new: "/usr/lib/varnish/vmods"
+
+Paths to vmods library. `old` is used here to create symbolic link to `new` path.
+
+    varnish_vmods: 
+      - name: "libvmod_ipcast"
+        url: "https://github.com/lkarsten/libvmod-ipcast.git"
+        version: "master"
+      - name: "libvmod_header"
+        url: "https://github.com/varnish/libvmod-header.git"
+        version: "3.0"
+
+List all your vmods git repositories here. 
+
+    varnish_apt_packages:
+      - curl
+      - dpkg-dev
+      - git
+      - make
+      - automake
+      - libncurses5-dev
+      - libtool
+      - pkg-config
+
+A list of packages to install before executing any steps.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
     - hosts: servers
+      become: yes
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: Melvin-mlp.ansible-mylittle-varnish3 }
 
 License
 -------
@@ -35,5 +91,5 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+This role was created in 2017 by Melvin Dias, author of nothing.
 =======
